@@ -13,17 +13,17 @@
 import json
 
 #the number of CWE's is determined by the number of desciption fields present
-def checkMultiCWE(b):
+def checkMultiCWE(b,cve_id):
         if b > 1:
             print(cve_id,"has",b,"CWE's")
     
 #the number of CWE's is determined by the number of desciption fields present
-def checkNoCWE(b):
+def checkNoCWE(b,cve_id):
         if b == 0:
             print(cve_id,"has",b,"CWE's")
 
 def main():
-    with open('../CVE-2017/nvdcve-1.0-2017.json', 'r') as fp:
+    with open('CVE-2017/nvdcve-1.0-2017.json', 'r') as fp:
         try:
             obj = json.load(fp)
         except ValueError:
@@ -42,9 +42,11 @@ def main():
                 #print(item['value'])
 
             # uncomment to run desired functions below
-            checkMultiCWE(b) 
-            #checkNoCWE(b)
+            checkMultiCWE(b,cve_id) 
+            #checkNoCWE(b,cve_id)
             b = 0
 
 if __name__ == "__main__":
     main()
+
+
