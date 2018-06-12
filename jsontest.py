@@ -11,7 +11,6 @@
 ##
 
 import json
-
 #the number of CWE's is determined by the number of desciption fields present
 #finds CVE's which have multiple CWE fields
 def checkMultiCWE(b,cveID):
@@ -61,8 +60,12 @@ def main():
         elif "** REJECT **" in item:
             pass
         else:
-            cve.update(config)
-            jsonOut.update(cve)
+            json.dump(cve, fileOut, indent=2)
+            json.dump(config, fileOut, indent=2)
+            json.dump(impact, fileOut, indent=2)
+            json.dump(publishedDate, fileOut, indent=2)
+            json.dump(lastModifiedDate, fileOut, indent=2)
+            #jsonOut.update(cve)
             #might have to use json.dumps('"configurations" : {')
             #json.dumps('}')
 
@@ -70,11 +73,6 @@ def main():
             #json.dump(cve, fileOut, indent=2)
 
             cveCount = cveCount + 1
-    json.dump(jsonOut, fileOut)
-#configurations
-#impact
-#publishedDate
-#lastModifiedDate
     print(cveCount,"CVE's written to",fileOutPath)
     fileOut.close()
 if __name__ == "__main__":
