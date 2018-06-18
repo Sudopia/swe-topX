@@ -3,12 +3,13 @@
 
 ##
 # Author: Preston Ruff
-# Organization: IU: CACR
-# Filename: jsontest.py
-# Date: 06/05/2018
-# Todo: make better variable names
-#       match code to google python style guideline
+# Filename: filterJSON.py
 ##
+
+'''
+Removes CVE entries which do not have CWE fields
+or have a CVE status of 'reject'
+'''
 
 import json
 #the number of CWE's is determined by the number of desciption fields present
@@ -35,6 +36,8 @@ def main():
     jsonOut = dict()
     fileOutPath = "edited-nvdcve-1.0-2017.json"
     fileOut = open(fileOutPath, 'w')
+    fieldlist = ['cve', 'configurations', 'impact', 'publishedDate', 'lastModifiedDate']
+    delCVEs = 0
     for item in obj['CVE_Items']:
         cve = item['cve']
         config = item['configurations']
@@ -42,7 +45,6 @@ def main():
         publishedDate = item['publishedDate']
         lastModifiedDate = item['lastModifiedDate']
         cveID = cve['CVE_data_meta']['ID']
-        #print("--",cve_id,"--")
         probtype = cve['problemtype']
         for field in probtype['problemtype_data']:
             cwe = field['description']
@@ -52,30 +54,26 @@ def main():
             # uncomment to run desired functions below
             #checkMultiCWE(b,cveID)
             #checkNoCWE(b,cveID)
+
             tmp = b
             b = 0
-        #maybe attempt to get each of those fields by name using json but use a try except statement to prevent runtime failure if the field doesnt exist in an CVE_Items entry
         if tmp == 0:
-            pass
+            for i in fieldlist:
+                if i in item:
+                    del item[i]
+            delCVEs = delCVEs + 1
         elif "** REJECT **" in item:
-            pass
+            for i in fieldlist:
+                if i in item:
+                    del item[i]
+            delCVEs = delCVEs + 1
         else:
-            json.dump(cve, fileOut, indent=2)
-            json.dump(config, fileOut, indent=2)
-            json.dump(impact, fileOut, indent=2)
-            json.dump(publishedDate, fileOut, indent=2)
-            json.dump(lastModifiedDate, fileOut, indent=2)
-            #jsonOut.update(cve)
-            #might have to use json.dumps('"configurations" : {')
-            #json.dumps('}')
-
-            #json.dumps(',') put this after very last field
-            #json.dump(cve, fileOut, indent=2)
-
             cveCount = cveCount + 1
+
+    json.dump(obj, fileOut, indent=2)
+    print(delCVEs, "CVE's removed")
     print(cveCount,"CVE's written to",fileOutPath)
     fileOut.close()
 if __name__ == "__main__":
     main()
-
 
