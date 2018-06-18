@@ -1,0 +1,63 @@
+#! bin/sh/ python
+#!/usr/bin/env python
+
+##
+# Author: Preston Ruff
+# Filename: countCWE.py
+##
+
+'''
+Get list of referenced CWEs and sort them by 
+decreasing frequency of occurence
+'''
+
+import json, csv
+def main():
+    fileIn = 'CVE-2017/nvdcve-1.0-2017.json'
+    #fileIn = 'edited-nvdcve-1.0-2017.json'
+    with open(fileIn, 'r') as fp:
+        try:
+            obj = json.load(fp)
+        except ValueError:
+            print("error loading JSON")
+    cweList = list()
+    for item in obj['CVE_Items']:
+        try:
+            cve = item['cve']
+            probtype = cve['problemtype']
+            for field in probtype['problemtype_data']:
+                cwe = field['description']
+                for el in cwe:
+                    cweList.append(el['value'])
+        except:
+            pass
+
+    with open("CWE.csv", 'w') as csvFile:
+        writer = csv.writer(csvFile)
+        for x in cweList:
+            writer.writerow([x])
+
+    row = str()
+    count = 0
+    freqList = list() 
+    idList = list()
+    with open("CWEanalysis.csv", 'w') as csvFile:
+        writer = csv.writer(csvFile)
+        while cweList:
+            for x in cweList:
+                tmp = x
+                count = count + 1
+                cweList.remove(x)
+                if tmp not in cweList:
+                    row = str(count) + ',' + tmp
+                    freqList.append(count)
+                    idList.append(tmp)
+                    writer.writerow([row])
+                    count = 0
+
+    #converts lists to tuples when sorting them synchronously
+    freqList, idList = zip(*sorted(zip(freqList, idList), reverse=True))
+    for i,val in enumerate(freqList):
+        print(val,idList[i])
+if __name__ == "__main__":
+    main()
