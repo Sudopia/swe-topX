@@ -1,5 +1,4 @@
-#! bin/sh/ python
-#!/usr/bin/env python
+#! /usr/bin/env python
 
 ##
 # Author: Preston Ruff

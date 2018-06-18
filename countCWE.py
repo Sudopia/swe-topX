@@ -1,5 +1,4 @@
-#! bin/sh/ python
-#!/usr/bin/env python
+#! /usr/bin/env python
 
 ##
 # Author: Preston Ruff
@@ -41,23 +40,21 @@ def main():
     count = 0
     freqList = list() 
     idList = list()
-    with open("CWEanalysis.csv", 'w') as csvFile:
-        writer = csv.writer(csvFile)
-        while cweList:
-            for x in cweList:
-                tmp = x
-                count = count + 1
-                cweList.remove(x)
-                if tmp not in cweList:
-                    row = str(count) + ',' + tmp
-                    freqList.append(count)
-                    idList.append(tmp)
-                    writer.writerow([row])
-                    count = 0
 
-    #converts lists to tuples when sorting them synchronously
-    freqList, idList = zip(*sorted(zip(freqList, idList), reverse=True))
-    for i,val in enumerate(freqList):
-        print(val,idList[i])
+    while cweList:
+        for x in cweList:
+            tmp = x
+            count = count + 1
+            cweList.remove(x)
+            if tmp not in cweList:
+                freqList.append(count)
+                idList.append(tmp)
+                count = 0
+    with open("sortedCWE.csv", 'w') as sortedFile:
+        #converts lists to tuples when sorting the lists using a shared index
+        freqList, idList = zip(*sorted(zip(freqList, idList), reverse=True))
+        for i,val in enumerate(freqList):
+            text = str(val) + ',' + idList[i] + '\n'
+            sortedFile.write(text)
 if __name__ == "__main__":
     main()
