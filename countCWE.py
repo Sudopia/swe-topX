@@ -71,9 +71,6 @@ def main():
     parser.add_argument("inputfile", nargs='+', \
     help="Input filename(s) for JSON input files (separate names \
     by a space).")
-    if not len(sys.argv) > 1:
-        parser.print_help()
-        sys.exit()
     args = parser.parse_args()
     if args.writemethod == 'a':
         if os.path.isfile(args.outputfile) == False:
