@@ -5,26 +5,29 @@
 # Filename: filterJSON.py
 ##
 
-'''
+"""
 Removes CVE entries which do not have CWE fields
-or have a CVE status of 'reject'
-'''
+or have a CVE status of 'reject'.
+"""
 
 import json
-#the number of CWE's is determined by the number of desciption fields present
-#finds CVE's which have multiple CWE fields
+
 def checkMultiCWE(b,cveID):
-        if b > 1:
-            print(cveID,"has",b,"CWE's")
+    """This function find CVE's which have multiple CWE fields.
+    The number of CWE's is determined by the number of desciption fields present.
+    """
+    if b > 1:
+        print(cveID,"has",b,"CWE's")
     
-#the number of CWE's is determined by the number of desciption fields present
-#finds CVE's which do not have any CWE fields
 def checkNoCWE(b,cveID):
-        if b == 0:
-            print(cveID,"has",b,"CWE's")
+    """This function finds CVE's which do not have any CWE fields.
+    The number of CWE's is determined by the number of desciption fields present.
+    """
+    if b == 0:
+        print(cveID,"has",b,"CWE's")
 
 def main():
-    with open('CVE-2017/nvdcve-1.0-2017.json', 'r') as fp:
+    with open('/home/pruff/Dropbox/swe-topX/CVE-XXXX/nvdcve-1.0-2013.json', 'r') as fp:
         try:
             obj = json.load(fp)
         except ValueError:
@@ -33,7 +36,7 @@ def main():
     b = 0
     cveCount = 0
     jsonOut = dict()
-    fileOutPath = "edited-nvdcve-1.0-2017.json"
+    fileOutPath = "filtered_CVES/edited-nvdcve-1.0-2013.json"
     fileOut = open(fileOutPath, 'w')
     fieldlist = ['cve', 'configurations', 'impact', 'publishedDate', 'lastModifiedDate']
     delCVEs = 0

@@ -7,10 +7,17 @@
 #       match code to google python style guideline
 ##
 
+
+"""
+Removes empty braces from CVE JSON files.
+
+Necessary to be used after filterJSON.py is run.
+"""
+
 import re, fileinput
 from os import replace
 
-fName = 'edited-nvdcve-1.0-2017.json'
+fName = 'filtered_CVES/edited-nvdcve-1.0-2013.json'
 fNametmp = fName + ".tmp"
 fp = open(fName, 'r+')
 fpTmp = open(fNametmp, 'w')
