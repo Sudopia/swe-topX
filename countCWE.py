@@ -33,6 +33,9 @@ def sumFreq(cweList):
         1. minimized (no repeating elements) list of cweID's 
         2. frequency list of CWE-ID occurences.
         The above lists are sorted together using the frequency values.
+
+    Todo:
+        If I decide to get more fields from the CWE CSV dictionary file, I can simply change my titledict values to be the entire row of the input csv file (except for the raw ID number in the first column), then I can call python's csv library and provide a given string to the csv function as long as I make the string iterable by doing something like iter(string) before giving it to the csv parsing function. Then I can index each field such as the CWE description field/column
     """
 
     cweList.sort()
@@ -64,6 +67,10 @@ def sumFreq(cweList):
 def main():
     #command line interface
     parser = argparse.ArgumentParser()
+    parser.add_argument('-n', '--namefile', help="a NIST CSV file \
+            which contains the CWE ID number data in column 1 \
+            and the CWE name data in column 2. This is used to map the \
+            CWE list to Names/Titles of the respective ID's")
     parser.add_argument("outputfile", help="Output filename for CSV file.")
     parser.add_argument("writemethod", choices=['w', 'a'], \
     help="Output file write method:'w' flag to overwrite existing file or \
@@ -72,6 +79,9 @@ def main():
     help="Input filename(s) for JSON input files (separate names \
     by a space).")
     args = parser.parse_args()
+    nameIn = args.namefile
+    fileOut = args.outputfile
+    fileInList = args.inputfile
     if args.writemethod == 'a':
         if os.path.isfile(args.outputfile) == False:
             print("Write Method Error: cannot use 'a' option if outputfile \
@@ -79,8 +89,6 @@ def main():
             print("Hint: change 'a' flag to 'w' flag to create a new output \
             file (or overwrite an existing file!)")
             sys.exit()
-    fileInList = args.inputfile
-    fileOut = args.outputfile
 
     #save individual/raw CWE-ID references
     cweList = list()
@@ -106,18 +114,41 @@ def main():
     idList = freqList[1]
     freqList = freqList[0]
 
+    #for each title/name found, save it to a corresponding CWE-ID 
+    if nameIn is not None:
+        titleDict = dict()
+        titlef = open(nameIn, 'r', newline='')
+        readtitles = csv.reader(titlef)
+        next(readtitles, None) #skip CSV header line
+        for rowA in idList:
+            cweID_A = rowA[4:]
+            for rowB in readtitles:
+                title = rowB[1]
+                cweID_B = rowB[0]
+                if cweID_B == cweID_A:
+                    titleDict[rowA] = title
+            titlef.seek(0,0)
+        titlef.close()
+
     if args.writemethod == 'w':
         csvFile = open(fileOut, 'w', newline='')
     else:
         csvFile = open(fileOut, 'a', newline='')
 
     writer = csv.writer(csvFile)
+
+
     if args.writemethod == 'w':
-        writer.writerow(("CWE ID", "Frequency"))
+        if nameIn is None:
+            writer.writerow(("CWE ID", "Frequency"))
+        else:
+            writer.writerow(("CWE ID", "Frequency", "Name"))
     for i, val in enumerate(freqList):
-        row = idList[i], str(val)
+        if nameIn is None or idList[i] not in titleDict:
+            row = idList[i], str(val)
+        else:
+            row = idList[i], str(val), titleDict[idList[i]]
         writer.writerow(row)
     csvFile.close()
-
 if __name__ == "__main__":
     main()

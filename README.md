@@ -13,7 +13,7 @@ This purpose of the project is to determine the most frequent computer security 
 
 #### Requirements
 * Python 3.XX
-* *plotFreq.py* requires you to install matplotlib
+* *plotFreq.py* requires you to install matplotlib.
 If you have pip installed you may install matplotlib by running `pip install matplotlib`
 
 #### Usage
