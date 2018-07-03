@@ -2,7 +2,7 @@
 Note: this is a *markdown* file (.md) whose style formatting is best seen by using a markdown viewer or by viewing this file directly on the github.com repository from a web browser.
 
 #### About
-This purpose of the project is to determine the most frequent computer security weaknesses encountered in the wild. This is done by taking JSON file(s) containing CVEs and counting the CWEs referenced within. An optional bar chart plotting script `plotFreq.py` is included for visualization of your data. Otherwise the CSV file output from `countCWE.py`contains the raw frequency data and must be run to create the file which `plotFreq.py` uses to display its charts.
+This purpose of the project is to determine the most frequent computer security weaknesses encountered in the wild. This is done by taking JSON file(s) containing CVEs and counting the CWEs referenced within. The JSON files commonly referred to as CVE NVD data feeds were sourced from the National Vulnerability Database (NVD). The main script in the project is `countCWE.py`. It requires at least one JSON file provided as input in order to create a CSV file containing the CWE IDs and their respective frequencies of occurrence as found within the JSON file. An optional additional input file may be provided to help label the name/title of respective CWE IDs in the output file. You may use the CWE research concepts file, `1000.csv`, as provided by Mitre, for this. Also, an optional bar chart plotting script `plotFreq.py` is included for visualization of the data file returned from `countCWE.py`.
 
 #### File Index
 * Readme.md - the file you are reading now
