@@ -96,6 +96,7 @@ def main():
 
     #save individual/raw CWE-ID references
     cweList = list()
+    repeatList = list()
     for fp in fileInList:
         with open(fp, 'r') as fpIn:
             try:
@@ -106,12 +107,22 @@ def main():
                 print("exiting now..")
                 sys.exit()
         for item in obj['CVE_Items']:
+            num = 0
             cve = item['cve']
             probtype = cve['problemtype']
             for field in probtype['problemtype_data']:
                 cwe = field['description']
                 for el in cwe:
                     cweList.append(el['value'])
+                    repeatList.append(el['value'])
+                    num = num + 1
+            if num > 1:
+                cve = cve['CVE_data_meta']
+                cve = cve['ID']
+                print(cve, "has %s CWEs" % num)
+                for i in repeatList:
+                    print("\t %s" % i)
+            del repeatList[:]
 
     row = str()
     freqList = list()
@@ -160,6 +171,6 @@ def main():
         writer.writerow(row)
         freqCount = freqCount + int(val)
     csvFile.close()
-    print(freqCount, "CWE elements processed. Of those, %s were unique." % i)
+    print(freqCount, "CWE elements processed. Of those, %s were unique." % (i+1))
 if __name__ == "__main__":
     main()
