@@ -10,6 +10,9 @@ Collect, count, and sort CWE references from CVE data feeds.
 
 Analyzes CVE data from NVD JSON data feeds and sorts contained CWE references
 by decreasing frequency of occurence.
+
+Bugs: the optional CWE research view input file does not have the names of CWEs 
+of the type 'category' so no text will be seen in the name section for those CWEs
 """
 
 import argparse
