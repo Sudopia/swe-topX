@@ -13,6 +13,7 @@ by decreasing frequency of occurence.
 
 Bugs: the optional CWE research view input file does not have the names of CWEs 
 of the type 'category' so no text will be seen in the name section for those CWEs
+in the file outputed by countCWE.py
 """
 
 import argparse
