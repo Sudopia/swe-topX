@@ -101,7 +101,10 @@ def main():
             try:
                 obj = json.load(fpIn)
             except ValueError:
-                print("error loading JSON")
+                print("Error: failure when trying to load inputfile:" "'",fp,"'")
+                print("Hint: retry using an input file with a JSON format")
+                print("exiting now..")
+                sys.exit()
         for item in obj['CVE_Items']:
             cve = item['cve']
             probtype = cve['problemtype']
@@ -109,6 +112,7 @@ def main():
                 cwe = field['description']
                 for el in cwe:
                     cweList.append(el['value'])
+
     row = str()
     freqList = list()
     idList = list()
@@ -147,12 +151,15 @@ def main():
             writer.writerow(("CWE ID", "Frequency"))
         else:
             writer.writerow(("CWE ID", "Frequency", "Name"))
+    freqCount = 0
     for i, val in enumerate(freqList):
         if nameIn is None or idList[i] not in titleDict:
             row = idList[i], str(val)
         else:
             row = idList[i], str(val), titleDict[idList[i]]
         writer.writerow(row)
+        freqCount = freqCount + int(val)
     csvFile.close()
+    print(freqCount, "CWE elements processed. Of those, %s were unique." % i)
 if __name__ == "__main__":
     main()
