@@ -97,6 +97,9 @@ def main():
     #save individual/raw CWE-ID references
     cweList = list()
     repeatList = list()
+    cveRepeatCount = 0
+    cveCount = 0
+    cveNoneCount = 0
     for fp in fileInList:
         with open(fp, 'r') as fpIn:
             try:
@@ -107,6 +110,7 @@ def main():
                 print("exiting now..")
                 sys.exit()
         for item in obj['CVE_Items']:
+            cveCount = cveCount + 1
             num = 0
             cve = item['cve']
             probtype = cve['problemtype']
@@ -117,13 +121,21 @@ def main():
                     repeatList.append(el['value'])
                     num = num + 1
             if num > 1:
+                for i in range(num):
+                    cweList.pop()
+                    repeatList.pop()
+                num = 0
+                cveRepeatCount = cveRepeatCount + 1
                 cve = cve['CVE_data_meta']
                 cve = cve['ID']
                 print(cve, "has %s CWEs" % num)
                 for i in repeatList:
                     print("\t %s" % i)
+            elif num == 0:
+                cveNoneCount = cveNoneCount + 1
             del repeatList[:]
-
+    print(cveRepeatCount, "CVEs had multiple CWEs out of %s CVEs processed." % cveCount)
+    print(cveNoneCount, "CVEs contained no CWE reference.")
     row = str()
     freqList = list()
     idList = list()
