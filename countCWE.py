@@ -21,6 +21,7 @@ import json
 import csv
 import sys
 import os
+from copy import deepcopy
 
 def sumFreq(cweList):
     """Determine frequency of CWE occurences and sort by frequency
@@ -97,6 +98,8 @@ def main():
     #save individual/raw CWE-ID references
     cweList = list()
     repeatList = list()
+    PKreview = list()
+    genDupreview = list()
     cveRepeatCount = 0
     cveCount = 0
     cveNoneCount = 0
@@ -113,6 +116,7 @@ def main():
             cveCount = cveCount + 1
             num = 0
             cve = item['cve']
+            present = False
             probtype = cve['problemtype']
             for field in probtype['problemtype_data']:
                 cwe = field['description']
@@ -121,19 +125,42 @@ def main():
                     repeatList.append(el['value'])
                     num = num + 1
             if num > 1:
-                for i in range(num):
-                    cweList.pop()
-                    repeatList.pop()
-                num = 0
-                cveRepeatCount = cveRepeatCount + 1
                 cve = cve['CVE_data_meta']
                 cve = cve['ID']
-                print(cve, "has %s CWEs" % num)
-                for i in repeatList:
-                    print("\t %s" % i)
+                repeatList.insert(0,cve)
+                #for item in repeatList[1:]:
+                for item in repeatList:
+                    cweList.pop() #CVEs with CWE quantity > 1 must first be analyzed
+                    #print(item,len(item))
+                    if item == "CWE-254":
+                    #    print(repeatList)
+                        present = True
+                if present is False:
+                    genDupreview.append(repeatList[:])
+                else:
+                    PKreview.append(repeatList[:])
+                print("printing tmp (aka repeatList)")
+                print(tmp)
+                present = False
+                cveRepeatCount = cveRepeatCount + 1
+                #print(cve, "has %s CWEs" % num)
+                num = 0
+                 
+                #for i in repeatList:
+                #    print("\t %s" % i)
+                #I was having an issue where I couldnt append repeatList to other lists because when I would later delete repeatList, the appended list would also be deleted from the parent list which it had been appended within 
+                print(tmp)
+                PKreview.append(tmp)
+                del repeatList[:]
+                print(PKreview)
+                sys.exit()
             elif num == 0:
                 cveNoneCount = cveNoneCount + 1
             del repeatList[:]
+    #PKreview.sort(key=len)
+    #genDupreview.sort(key=len)
+    print("print starting PKreview printoff")
+    print(PKreview)
     print(cveRepeatCount, "CVEs had multiple CWEs out of %s CVEs processed." % cveCount)
     print(cveNoneCount, "CVEs contained no CWE reference.")
     row = str()
