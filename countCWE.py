@@ -76,30 +76,21 @@ def main():
             which contains the CWE ID number data in column 1 \
             and the CWE name data in column 2. This is used to map the \
             CWE list to Names/Titles of the respective ID's")
-    parser.add_argument("outputfile", help="Output filename for CSV file.")
-    parser.add_argument("writemethod", choices=['w', 'a'], \
-    help="Output file write method:'w' flag to overwrite existing file or \
-    create a new file.'a' flag to append to existing file.")
+    parser.add_argument("PKoutputFile", help="Output filename for CVEs containing a 7PK CWE and at least one more CWE reference (CSV file).")
+    parser.add_argument("dupsOutputFile", help="Output filename for CVEs containing more than one CWE reference but no 7PK CWEs (CSV file).")
     parser.add_argument("inputfile", nargs='+', \
-    help="Input filename(s) for JSON input files (separate names \
-    by a space).")
+    help="Input filename(s) separated by spaces (JSON file).")
     args = parser.parse_args()
-    nameIn = args.namefile
-    fileOut = args.outputfile
+    PKfileOut = args.PKoutputFile
+    DupsFileOut = args.dupsOutputFile
     fileInList = args.inputfile
-    if args.writemethod == 'a':
-        if os.path.isfile(args.outputfile) == False:
-            print("Write Method Error: cannot use 'a' option if outputfile \
-            does not exist")
-            print("Hint: change 'a' flag to 'w' flag to create a new output \
-            file (or overwrite an existing file!)")
-            sys.exit()
 
     #save individual/raw CWE-ID references
     cweList = list()
     repeatList = list()
     PKreview = list()
     genDupreview = list()
+    tmpRepeatList = list()
     cveRepeatCount = 0
     cveCount = 0
     cveNoneCount = 0
@@ -139,77 +130,55 @@ def main():
                     genDupreview.append(repeatList[:])
                 else:
                     PKreview.append(repeatList[:])
-                print("printing tmp (aka repeatList)")
-                print(tmp)
                 present = False
                 cveRepeatCount = cveRepeatCount + 1
-                #print(cve, "has %s CWEs" % num)
                 num = 0
                  
-                #for i in repeatList:
-                #    print("\t %s" % i)
-                #I was having an issue where I couldnt append repeatList to other lists because when I would later delete repeatList, the appended list would also be deleted from the parent list which it had been appended within 
-                print(tmp)
-                PKreview.append(tmp)
                 del repeatList[:]
-                print(PKreview)
-                sys.exit()
             elif num == 0:
                 cveNoneCount = cveNoneCount + 1
             del repeatList[:]
-    #PKreview.sort(key=len)
-    #genDupreview.sort(key=len)
+    #sorted so that the quantity of CWEs in an entry is increasing
+    PKreview.sort(key=len)
+    genDupreview.sort(key=len)
     print("print starting PKreview printoff")
-    print(PKreview)
+    #print(PKreview)
+    #print(genDupreview)
     print(cveRepeatCount, "CVEs had multiple CWEs out of %s CVEs processed." % cveCount)
     print(cveNoneCount, "CVEs contained no CWE reference.")
-    row = str()
-    freqList = list()
-    idList = list()
 
-    #a tuple containing two list elements
-    freqList = sumFreq(cweList)
-    idList = freqList[1]
-    freqList = freqList[0]
-
-    #for each title/name found, save it to a corresponding CWE-ID 
-    if nameIn is not None:
-        titleDict = dict()
-        titlef = open(nameIn, 'r', newline='')
-        readtitles = csv.reader(titlef)
-        next(readtitles, None) #skip CSV header line
-        for rowA in idList:
-            cweID_A = rowA[4:]
-            for rowB in readtitles:
-                title = rowB[1]
-                cweID_B = rowB[0]
-                if cweID_B == cweID_A:
-                    titleDict[rowA] = title
-            titlef.seek(0,0)
-        titlef.close()
-
-    if args.writemethod == 'w':
-        csvFile = open(fileOut, 'w', newline='')
-    else:
-        csvFile = open(fileOut, 'a', newline='')
-
+    csvFile = open(PKfileOut, 'w', newline='')
     writer = csv.writer(csvFile)
-
-
-    if args.writemethod == 'w':
-        if nameIn is None:
-            writer.writerow(("CWE ID", "Frequency"))
-        else:
-            writer.writerow(("CWE ID", "Frequency", "Name"))
-    freqCount = 0
-    for i, val in enumerate(freqList):
-        if nameIn is None or idList[i] not in titleDict:
-            row = idList[i], str(val)
-        else:
-            row = idList[i], str(val), titleDict[idList[i]]
-        writer.writerow(row)
-        freqCount = freqCount + int(val)
+    writer.writerow(("CVEID", "CWEID"))
+    cveID = ""
+    row = ""
+    for i, val in enumerate(PKreview):
+        for j,el in enumerate(val):
+            if j == 0:
+                cveID = el
+            elif j == 1:
+                row = cveID + el
+                writer.writerow([cveID, el])
+            else:
+                row = "," + el
+                writer.writerow(["", el])
     csvFile.close()
-    print(freqCount, "CWE elements processed. Of those, %s were unique." % (i+1))
+
+    csvFile = open(DupsFileOut, 'w', newline='')
+    writer = csv.writer(csvFile)
+    writer.writerow(("CVEID", "CWEID"))
+    cveID = ""
+    row = ""
+    for i, val in enumerate(genDupreview):
+        for j,el in enumerate(val):
+            if j == 0:
+                cveID = el
+            elif j == 1:
+                row = cveID + el
+                writer.writerow([cveID, el])
+            else:
+                row = "," + el
+                writer.writerow(["", el])
+    csvFile.close()
 if __name__ == "__main__":
     main()
