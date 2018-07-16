@@ -22,6 +22,7 @@ import csv
 import sys
 import os
 from copy import deepcopy
+import pprint
 
 def sumFreq(cweList):
     """Determine frequency of CWE occurences and sort by frequency
@@ -104,9 +105,10 @@ def main():
                 print("exiting now..")
                 sys.exit()
         for item in obj['CVE_Items']:
-            cveCount = cveCount + 1
             num = 0
             cve = item['cve']
+            #print(cve['CVE_data_meta']['ID']) #intermediate data step to show all CVEs
+            cveCount = cveCount + 1
             present = False
             probtype = cve['problemtype']
             for field in probtype['problemtype_data']:
@@ -119,12 +121,9 @@ def main():
                 cve = cve['CVE_data_meta']
                 cve = cve['ID']
                 repeatList.insert(0,cve)
-                #for item in repeatList[1:]:
                 for item in repeatList:
                     cweList.pop() #CVEs with CWE quantity > 1 must first be analyzed
-                    #print(item,len(item))
                     if item == "CWE-254":
-                    #    print(repeatList)
                         present = True
                 if present is False:
                     genDupreview.append(repeatList[:])
